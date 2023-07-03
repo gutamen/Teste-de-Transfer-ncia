@@ -15,8 +15,11 @@ public class cliente{
         // Definir tamanhos dos pacotes
         int[] packetSizes = { 100, 500, 1000 };
 
+        // Definir tamanho do pacote
+        int packetSize = 500;
+
         // Testar TCP 
-        testTCP(serverAddress, serverPort, filePath, packetSizes);
+        testTCP(serverAddress, serverPort, filePath, packetSize);
 
         // Testar UDP com garantia de entrega
         testUDP(serverAddress, serverPort, filePath, packetSizes, true);
@@ -25,7 +28,7 @@ public class cliente{
         testUDP(serverAddress, serverPort, filePath, packetSizes, false);
     }
 
-    private static void testTCP(String serverAddress, int serverPort, String filePath, int[] packetSizes) {
+    private static void testTCP(String serverAddress, int serverPort, String filePath, int tamanhoPacote) {
         try {
             // Criar o socket TCP e conectar ao servidor
             Socket socket = new Socket(serverAddress, serverPort);
@@ -33,15 +36,8 @@ public class cliente{
             // Obter o fluxo de saída do socket
             OutputStream outputStream = socket.getOutputStream();
 
-            // Enviar o tamanho dos pacotes
-            for (int packetSize : packetSizes) {
-                outputStream.write(packetSize);
-            }
-
-
-
             // Enviar o arquivo
-            sendFile(filePath, outputStream, packetSizes);
+            sendFile(filePath, outputStream, tamanhoPacote);
 
             // Fechar o socket
             socket.close();
@@ -80,13 +76,13 @@ public class cliente{
         }
     }
 
-    private static void sendFile(String filePath, OutputStream outputStream, int[] packetSizes) throws IOException {
+    private static void sendFile(String filePath, OutputStream outputStream, int tamanhoPacote) throws IOException {
         // Abrir o arquivo
         File file = new File(filePath);
         FileInputStream fileInputStream = new FileInputStream(file);
 
         // Criar um buffer para ler o arquivo
-        byte[] buffer = new byte[BUFFER_SIZE];
+        byte[] buffer = new byte[tamanhoPacote];
 
         int bytesRead;
         long startTime = System.currentTimeMillis();
@@ -94,9 +90,7 @@ public class cliente{
         // Ler o arquivo e enviar os pacotes
         while ((bytesRead = fileInputStream.read(buffer)) != -1) {
             // Enviar cada pacote com o tamanho especificado
-            for (int packetSize : packetSizes) {
-                outputStream.write(buffer, 0, Math.min(bytesRead, packetSize));
-            }
+            outputStream.write(buffer, 0, tamanhoPacote); 
         }
 
         long endTime = System.currentTimeMillis();

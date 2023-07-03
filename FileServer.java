@@ -6,15 +6,21 @@ public class FileServer {
     private static final int DEFAULT_PORT = 12345;
 
     public static void main(String[] args) {
-        int port = args.length > 0 ? Integer.parseInt(args[0]) : DEFAULT_PORT;
-        startServer(port);
+        int porta = 0;
+        if(args.length > 0){
+            porta = Integer.parseInt(args[0]);
+        }
+        else{
+            porta = DEFAULT_PORT;
+        }        
+        iniciaServidor(porta);
     }
 
-    private static void startServer(int port) {
+    private static void iniciaServidor(int porta) {
         try {
             // Cria o socket de servidor TCP
-            ServerSocket serverSocket = new ServerSocket(port);
-            System.out.println("Servidor aberto na porta " + port);
+            ServerSocket serverSocket = new ServerSocket(porta);
+            System.out.println("Servidor aberto na porta " + porta);
 
             while (true) {
                 // Aguarda uma conexão de cliente
