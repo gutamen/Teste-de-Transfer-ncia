@@ -35,7 +35,6 @@ public class FileServer {
                         // Obtém o fluxo de entrada do cliente
                         InputStream inputStream = clientSocket.getInputStream();
 
-
 						// Recebe o arquivo
                         receiveFile(clientSocket, 500);
 
@@ -55,19 +54,7 @@ public class FileServer {
         }
     }
 
-    private static int[] readPacketSizes(InputStream inputStream) throws IOException {
-        int[] packetSizes = new int[3];
-        for (int i = 0; i < 3; i++) {
-            packetSizes[i] = inputStream.read();
-        }
-        return packetSizes;
-    }
-
-    private static boolean readDeliveryOption(InputStream inputStream) throws IOException {
-        int deliveryOption = inputStream.read();
-        return deliveryOption == 1;
-    }
-
+    
     private static void receiveFile(Socket clientSocket, int packetSize) throws IOException {
         // Cria um buffer para receber os dados
         byte[] buffer = new byte[packetSize];
