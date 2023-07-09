@@ -109,15 +109,13 @@ public class cliente{
         while ((bytesRead = fileInputStream.read(buffer)) != -1) {
             // Enviar cada pacote com o tamanho especificado
 			DatagramPacket packet = new DatagramPacket(buffer, packetSize, serverAddress, serverPort);
-			try{
-				
-				TimeUnit.MILLISECONDS.sleep(2);
-				socket.send(packet);
-			}
-			catch(IOException e){
-				e.printStackTrace();
-			}
+			socket.send(packet);
+			
         }
+		
+		DatagramPacket packet = new DatagramPacket(buffer, 0, serverAddress, serverPort);
+		packet.setLength(0);
+		socket.send(packet);
 
         long endTime = System.currentTimeMillis();
 

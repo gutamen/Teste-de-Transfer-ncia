@@ -76,7 +76,7 @@ public class FileServerUDP {
 
             // Recebe o pacote do cliente
             serverSocket.receive(receivePacket);
-
+			
             // Verifica se o pacote recebido é vazio (final da transferência)
             if (receivePacket.getLength() == 0) {
                 break;
