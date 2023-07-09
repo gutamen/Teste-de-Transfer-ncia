@@ -15,6 +15,8 @@ public class FileServer {
         }        
         iniciaServidor(porta);
     }
+	
+	int packetSize = 500;
 
     private static void iniciaServidor(int porta) {
         try {
@@ -33,14 +35,9 @@ public class FileServer {
                         // Obtém o fluxo de entrada do cliente
                         InputStream inputStream = clientSocket.getInputStream();
 
-                        // Lê o tamanho dos pacotes
-                        int[] packetSizes = readPacketSizes(inputStream);
 
-                        // Lê a opção de entrega confiável
-                        boolean reliable = readDeliveryOption(inputStream);
-
-                        // Recebe o arquivo
-                        receiveFile(clientSocket, packetSizes, reliable);
+						// Recebe o arquivo
+                        receiveFile(clientSocket, 500);
 
                         // Fecha a conexão com o cliente
                         clientSocket.close();
@@ -71,9 +68,9 @@ public class FileServer {
         return deliveryOption == 1;
     }
 
-    private static void receiveFile(Socket clientSocket, int[] packetSizes, boolean reliable) throws IOException {
+    private static void receiveFile(Socket clientSocket, int packetSize) throws IOException {
         // Cria um buffer para receber os dados
-        byte[] buffer = new byte[BUFFER_SIZE];
+        byte[] buffer = new byte[packetSize];
 
         // Cria o arquivo de saída
         FileOutputStream fileOutputStream = new FileOutputStream("received_file");
@@ -86,7 +83,7 @@ public class FileServer {
 
         // Recebe os pacotes e escreve no arquivo
         while ((bytesRead = inputStream.read(buffer)) != -1) {
-            fileOutputStream.write(buffer, 0, bytesRead);
+            fileOutputStream.write(buffer);
         }
 
         System.out.println(buffer.toString());

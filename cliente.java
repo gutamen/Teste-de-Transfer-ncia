@@ -22,10 +22,10 @@ public class cliente{
         testTCP(serverAddress, serverPort, filePath, packetSize);
 
         // Testar UDP com garantia de entrega
-        testUDP(serverAddress, serverPort, filePath, packetSizes, true);
+        //testUDP(serverAddress, serverPort, filePath, packetSizes, true);
 
         // Testar UDP sem garantia de entrega
-        testUDP(serverAddress, serverPort, filePath, packetSizes, false);
+        //testUDP(serverAddress, serverPort, filePath, packetSizes, false);
     }
 
     private static void testTCP(String serverAddress, int serverPort, String filePath, int tamanhoPacote) {
@@ -80,7 +80,7 @@ public class cliente{
         // Abrir o arquivo
         File file = new File(filePath);
         FileInputStream fileInputStream = new FileInputStream(file);
-
+		
         // Criar um buffer para ler o arquivo
         byte[] buffer = new byte[tamanhoPacote];
 
