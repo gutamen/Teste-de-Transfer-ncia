@@ -36,6 +36,9 @@ public class FileServerUDP {
             byte[] buffer = new byte[packetSize];
 
             while (true) {
+                    if(finaliza)
+                        break;
+
                 // Cria o pacote para receber dados do cliente
                 DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 
@@ -50,7 +53,7 @@ public class FileServerUDP {
                         byte[] data = receivePacket.getData();
                         fila.acquire(); 
                         // Recebe o arquivo
-                        receiveFile(data, false);
+                        receiveFile(data, false, receivePacket);
                         fila.release();
 						
                     } catch (Exception e) {
@@ -61,9 +64,9 @@ public class FileServerUDP {
                 // Inicia a thread do cliente
                 clientThread.start();
 
-                if(finaliza)
-                    break;
-
+                
+                
+                //System.out.println(finaliza);
             }
 
             // Calcula e exibe o tempo de transferência
@@ -76,7 +79,7 @@ public class FileServerUDP {
     }
 
 
-    private static void receiveFile(byte[] receivePacket, boolean reliable) throws IOException {
+    private static void receiveFile(byte[] receivePacket, boolean reliable, DatagramPacket packet) throws IOException {
 
 
         if(primeiro){
@@ -90,12 +93,13 @@ public class FileServerUDP {
 
 
 		    	
-        System.out.println("teste");
+        //System.out.println(receivePacket.length);
 
         // Verifica se o pacote recebido é vazio (final da transferência)
-        if (receivePacket.length < 2) {
+        if (packet.getLength() < 2) {
             fileOutputStream.close();
             finaliza = true;
+            System.out.println(finaliza);
             endTime = System.currentTimeMillis();
             return;
 
