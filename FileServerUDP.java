@@ -1,10 +1,16 @@
 import java.io.*;
 import java.net.*;
+import java.util.concurrent.*;
 
 public class FileServerUDP {
     private static final int BUFFER_SIZE = 500;
     private static final int DEFAULT_PORT = 23456;
 	static int packetSize = 500;
+    static Semaphore fila;
+    static boolean finaliza = false;
+    static boolean primeiro = true;
+    static long startTime = 0;
+    static long endTime = 0;
 
     public static void main(String[] args) {
         int porta = 0;
@@ -20,6 +26,7 @@ public class FileServerUDP {
 	
 
     private static void startServer(int port) {
+        fila = new Semaphore(1);
         try {
             // Cria o socket de servidor UDP
             DatagramSocket serverSocket = new DatagramSocket(port);
@@ -34,68 +41,72 @@ public class FileServerUDP {
 
                 // Aguarda a chegada de um pacote do cliente
                 serverSocket.receive(receivePacket);
-
+                
                 // Inicia uma nova thread para lidar com o pacote recebido
                 Thread clientThread = new Thread(() -> {
                     try {
-						
+		                	    			
                         // Obtém os dados recebidos
                         byte[] data = receivePacket.getData();
-
+                        fila.acquire(); 
                         // Recebe o arquivo
-                        receiveFile(serverSocket, receivePacket.getAddress(), receivePacket.getPort(), packetSize, false);
+                        receiveFile(data, false);
+                        fila.release();
 						
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 });
 
                 // Inicia a thread do cliente
                 clientThread.start();
+
+                if(finaliza)
+                    break;
+
             }
+
+            // Calcula e exibe o tempo de transferência
+            long duration = endTime - startTime;
+            System.out.println("UDP Transfer Time: " + duration + " ms");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
 
-    private static void receiveFile(DatagramPacket receivePacket, boolean reliable) throws IOException {
-        // Cria um buffer para receber os dados
-        byte[] buffer = new byte[packetSize];
+    private static void receiveFile(byte[] receivePacket, boolean reliable) throws IOException {
 
+
+        if(primeiro){
+            primeiro = false;
+            startTime = System.currentTimeMillis();
+        }
         // Cria o arquivo de saída
         FileOutputStream fileOutputStream = new FileOutputStream("received_file_no_garantee.rar", true);
 
         int bytesRead;
-        long startTime = System.currentTimeMillis();
 
-        // Recebe os pacotes e escreve no arquivo
-        while (true) {
-            // Cria o pacote para receber dados do cliente
-            DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 
-            // Recebe o pacote do cliente
-            serverSocket.receive(receivePacket);
 		    	
-            System.out.println(receivePacket.getLength());
-            // Verifica se o pacote recebido é vazio (final da transferência)
-            if (receivePacket.getLength() < 2) {
-                break;
-            }
+        System.out.println("teste");
 
-            // Escreve os dados do pacote no arquivo
-            fileOutputStream.write(buffer);
+        // Verifica se o pacote recebido é vazio (final da transferência)
+        if (receivePacket.length < 2) {
+            fileOutputStream.close();
+            finaliza = true;
+            endTime = System.currentTimeMillis();
+            return;
 
         }
+        // Escreve os dados do pacote no arquivo
+        fileOutputStream.write(receivePacket);
 
-        long endTime = System.currentTimeMillis();
+
 
         // Fecha o arquivo
         fileOutputStream.close();
-
-        // Calcula e exibe o tempo de transferência
-        long duration = endTime - startTime;
-        System.out.println("UDP Transfer Time: " + duration + " ms");
     }
 }
 
