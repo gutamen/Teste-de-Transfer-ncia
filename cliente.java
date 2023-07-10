@@ -23,7 +23,7 @@ public class cliente{
         //testTCP(serverAddress, serverPort, filePath, packetSize);
 
         // Testar UDP com garantia de entrega
-        testUDP(serverAddress, serverPort, filePath, packetSize, true);
+        testUDP(serverAddress, 23456, filePath, packetSize, true);
 
         // Testar UDP sem garantia de entrega
         //testUDP(serverAddress, serverPort, filePath, packetSizes, false);
@@ -114,7 +114,7 @@ public class cliente{
         }
 		
 		DatagramPacket packet = new DatagramPacket(buffer, 0, serverAddress, serverPort);
-		packet.setLength(0);
+		packet.setLength(1);
 		socket.send(packet);
 
         long endTime = System.currentTimeMillis();

@@ -3,7 +3,7 @@ import java.net.*;
 
 public class FileServerUDP {
     private static final int BUFFER_SIZE = 500;
-    private static final int DEFAULT_PORT = 12345;
+    private static final int DEFAULT_PORT = 23456;
 	static int packetSize = 500;
 
     public static void main(String[] args) {
@@ -59,12 +59,12 @@ public class FileServerUDP {
     }
 
 
-    private static void receiveFile(DatagramSocket serverSocket, InetAddress clientAddress, int clientPort, int packetSize, boolean reliable) throws IOException {
+    private static void receiveFile(DatagramPacket receivePacket, boolean reliable) throws IOException {
         // Cria um buffer para receber os dados
         byte[] buffer = new byte[packetSize];
 
         // Cria o arquivo de saída
-        FileOutputStream fileOutputStream = new FileOutputStream("received_file_no_garantee.rar");
+        FileOutputStream fileOutputStream = new FileOutputStream("received_file_no_garantee.rar", true);
 
         int bytesRead;
         long startTime = System.currentTimeMillis();
@@ -76,14 +76,16 @@ public class FileServerUDP {
 
             // Recebe o pacote do cliente
             serverSocket.receive(receivePacket);
-			
+		    	
+            System.out.println(receivePacket.getLength());
             // Verifica se o pacote recebido é vazio (final da transferência)
-            if (receivePacket.getLength() == 0) {
+            if (receivePacket.getLength() < 2) {
                 break;
             }
 
             // Escreve os dados do pacote no arquivo
-            fileOutputStream.write(buffer, 0, receivePacket.getLength());
+            fileOutputStream.write(buffer);
+
         }
 
         long endTime = System.currentTimeMillis();

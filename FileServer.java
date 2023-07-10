@@ -60,7 +60,7 @@ public class FileServer {
         byte[] buffer = new byte[packetSize];
 
         // Cria o arquivo de saída
-        FileOutputStream fileOutputStream = new FileOutputStream("received_file");
+            FileOutputStream fileOutputStream = new FileOutputStream("received_file.rar");
 
         // Obtém o fluxo de entrada do cliente
         InputStream inputStream = clientSocket.getInputStream();
