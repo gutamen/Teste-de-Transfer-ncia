@@ -44,6 +44,7 @@ public class FileServerUDP {
 
                 // Aguarda a chegada de um pacote do cliente
                 serverSocket.receive(receivePacket);
+
                 
                 // Inicia uma nova thread para lidar com o pacote recebido
                 Thread clientThread = new Thread(() -> {
@@ -91,12 +92,13 @@ public class FileServerUDP {
 
         int bytesRead;
 
-
+        
+        System.out.print(packet.getData()[0]);
+        System.out.println(packet.getData()[1]);
 		    	
-        //System.out.println(receivePacket.length);
 
         // Verifica se o pacote recebido é vazio (final da transferência)
-        if (packet.getLength() < 2) {
+        if (packet.getLength() <= 2) {
             fileOutputStream.close();
             finaliza = true;
             System.out.println(finaliza);

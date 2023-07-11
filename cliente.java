@@ -113,9 +113,13 @@ public class cliente{
 			
         }
 		
-		DatagramPacket packet = new DatagramPacket(buffer, 0, serverAddress, serverPort);
-		packet.setLength(1);
+
+        byte[] deita = new byte[2];
+        deita[0] = 'c';
+        deita[1] = 'u';
+        DatagramPacket packet = new DatagramPacket(deita, 2, serverAddress, serverPort);
 		socket.send(packet);
+
 
         long endTime = System.currentTimeMillis();
 
