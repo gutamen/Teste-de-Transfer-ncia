@@ -56,8 +56,10 @@ public class cliente{
             InetAddress serverInetAddress = InetAddress.getByName(serverAddress);
 
             // Enviar o arquivo
-            sendFile(filePath, socket, serverInetAddress, serverPort, packetSize);
+            if(reliable)
+                sendFile(filePath, socket, serverInetAddress, serverPort, packetSize);
 
+            if(!reliable)
             // Fechar o socket
             socket.close();
 			
@@ -95,6 +97,44 @@ public class cliente{
 
 
     private static void sendFile(String filePath, DatagramSocket socket, InetAddress serverAddress, int serverPort, int packetSize) throws IOException {
+        // Abrir o arquivo
+        File file = new File(filePath);
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        // Criar um buffer para ler o arquivo
+        byte[] buffer = new byte[packetSize];
+
+        int bytesRead;
+        long startTime = System.currentTimeMillis();
+
+        // Ler o arquivo e enviar os pacotes
+        while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+            // Enviar cada pacote com o tamanho especificado
+			DatagramPacket packet = new DatagramPacket(buffer, packetSize, serverAddress, serverPort);
+			socket.send(packet);
+			
+        }
+		
+
+        byte[] deita = new byte[2];
+        deita[0] = 'c';
+        deita[1] = 'u';
+        DatagramPacket packet = new DatagramPacket(deita, 2, serverAddress, serverPort);
+		socket.send(packet);
+
+
+        long endTime = System.currentTimeMillis();
+
+        // Calcular e exibir o tempo de transferência
+        long duration = endTime - startTime;
+        System.out.println("UDP Transfer Time: " + duration + " ms");
+
+        // Fechar o arquivo
+        fileInputStream.close();
+    }
+
+
+    private static void enviaArquivoConfiavel(String filePath, DatagramSocket socket, InetAddress serverAddress, int serverPort, int packetSize) throws IOException {
         // Abrir o arquivo
         File file = new File(filePath);
         FileInputStream fileInputStream = new FileInputStream(file);
