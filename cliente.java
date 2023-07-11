@@ -1,6 +1,8 @@
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
+import java.nio.ByteBuffer;
+
 
 public class cliente{
     private static final int BUFFER_SIZE = 1024;
@@ -9,12 +11,11 @@ public class cliente{
         // Definir as informações do servidor e porta
         String serverAddress = "localhost";
         int serverPort = 12345;
+        int serverPortDatagram = 23456;
+        int serverPortDatagramRealiable = 34567
 
         // Definir o arquivo a ser transferido
         String filePath = "teste.txt";
-
-        // Definir tamanhos dos pacotes
-        int[] packetSizes = { 100, 500, 1000 };
 
         // Definir tamanho do pacote
         int packetSize = 500;
@@ -22,11 +23,11 @@ public class cliente{
         // Testar TCP 
         //testTCP(serverAddress, serverPort, filePath, packetSize);
 
-        // Testar UDP com garantia de entrega
-        testUDP(serverAddress, 23456, filePath, packetSize, true);
-
         // Testar UDP sem garantia de entrega
-        //testUDP(serverAddress, serverPort, filePath, packetSizes, false);
+        testUDP(serverAddress, serverPortDatagram, filePath, packetSize, false);
+
+        // Testar UDP com garantia de entrega
+        //testUDP(serverAddress, serverPortDatagramRealiable, filePath, packetSizes, true);
     }
 
     private static void testTCP(String serverAddress, int serverPort, String filePath, int tamanhoPacote) {
@@ -58,8 +59,9 @@ public class cliente{
             // Enviar o arquivo
             if(reliable)
                 sendFile(filePath, socket, serverInetAddress, serverPort, packetSize);
-
-            if(!reliable)
+            else
+                sendFileReliable(filePath, socket, serverInetAddress, serverPort, packetSize);
+        
             // Fechar o socket
             socket.close();
 			
@@ -134,23 +136,45 @@ public class cliente{
     }
 
 
-    private static void enviaArquivoConfiavel(String filePath, DatagramSocket socket, InetAddress serverAddress, int serverPort, int packetSize) throws IOException {
+    private static void sendFileReliable(String filePath, DatagramSocket socket, InetAddress serverAddress, int serverPort, int packetSize) throws IOException {
         // Abrir o arquivo
         File file = new File(filePath);
         FileInputStream fileInputStream = new FileInputStream(file);
 
         // Criar um buffer para ler o arquivo
-        byte[] buffer = new byte[packetSize];
+        byte[] buffer = new byte[packetSize+8];  // colocar número de sequência no pacote com o +8
 
         int bytesRead;
+        long verificationQword = 0;
+        long packetCount = file.length()/packetSize + (file.length()%packetSize/file.length()%packetSize);
+
+    
+        
+
+
         long startTime = System.currentTimeMillis();
 
         // Ler o arquivo e enviar os pacotes
-        while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+        for (int i = 0 ; packetCount < i; i++){
+           
+
+            bytesRead = fileInputStream.read(buffer); 
+            
             // Enviar cada pacote com o tamanho especificado
 			DatagramPacket packet = new DatagramPacket(buffer, packetSize, serverAddress, serverPort);
 			socket.send(packet);
-			
+            socket.receive(packet);			
+            byte[] verificator = packet.getData();
+
+            if (verificationQword == ByteBuffer.wrap(verificator).getLong()){
+                verificationQword++;
+            }
+            else{
+
+            }
+
+            
+            
         }
 		
 

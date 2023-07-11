@@ -10,15 +10,16 @@ import java.util.Set;
 public class ServidorDatagramaConfirmante {
     private static final int PACKET_SIZE = 500;
     private static final int SEQUENCE_NUMBER_SIZE = 8;
-    private static final int CONFIRMATION_PORT = 5678;
+    private static final int CONFIRMATION_PORT = 34567;
 
     public static void main(String[] args) {
         byte[] buffer = new byte[PACKET_SIZE];
         boolean stopFlag = false;
         Set<Long> receivedSequences = new HashSet<>();
 
-        try (FileOutputStream fileOutputStream = new FileOutputStream("received_packets.txt", true);
-             DatagramSocket serverSocket = new DatagramSocket(34567)) {
+        try{ 
+            FileOutputStream fileOutputStream = new FileOutputStream("received_packets.txt", true);
+            DatagramSocket serverSocket = new DatagramSocket(34567); 
 
             long startTime = System.currentTimeMillis();
 
@@ -27,7 +28,7 @@ public class ServidorDatagramaConfirmante {
                 serverSocket.receive(receivePacket);
 
                 int packetLength = receivePacket.getLength();
-                if (packetLength < SEQUENCE_NUMBER_SIZE + 2) { // 2 bytes para a confirmação
+                if (packetLength <= 2) { 
                     stopFlag = true;
                     break;
                 }
