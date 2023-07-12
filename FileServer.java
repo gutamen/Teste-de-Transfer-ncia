@@ -16,7 +16,7 @@ public class FileServer {
         iniciaServidor(porta);
     }
 	
-	int packetSize = 500;
+	static int packetSize = 500;
 
     private static void iniciaServidor(int porta) {
         try {
@@ -36,7 +36,7 @@ public class FileServer {
                         InputStream inputStream = clientSocket.getInputStream();
 
 						// Recebe o arquivo
-                        receiveFile(clientSocket, 500);
+                        receiveFile(clientSocket, packetSize);
 
                         // Fecha a conexão com o cliente
                         clientSocket.close();
@@ -60,7 +60,7 @@ public class FileServer {
         byte[] buffer = new byte[packetSize];
 
         // Cria o arquivo de saída
-            FileOutputStream fileOutputStream = new FileOutputStream("received_file.rar");
+        FileOutputStream fileOutputStream = new FileOutputStream("received_file.txt");
 
         // Obtém o fluxo de entrada do cliente
         InputStream inputStream = clientSocket.getInputStream();

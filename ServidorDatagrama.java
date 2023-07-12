@@ -4,12 +4,14 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
 public class ServidorDatagrama {
+    static boolean first = true;
+
     public static void main(String[] args) {
         int packetSize = 500;
         byte[] buffer = new byte[packetSize];
         boolean stopFlag = false;
 
-        try (FileOutputStream fileOutputStream = new FileOutputStream("received_packets.txt", true);
+        try (FileOutputStream fileOutputStream = new FileOutputStream("received_dubious_packets.txt");
              DatagramSocket serverSocket = new DatagramSocket(23456)) {
 
             long startTime = System.currentTimeMillis();
@@ -18,13 +20,18 @@ public class ServidorDatagrama {
                 DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                 serverSocket.receive(receivePacket);
 
+                if(first){
+                    first = false;
+                    startTime = System.currentTimeMillis();
+                }
+
                 int packetLength = receivePacket.getLength();
                 if (packetLength <= 2) {
                     stopFlag = true;
                     break;
                 }
 
-                fileOutputStream.write(buffer, 0, packetLength);
+                fileOutputStream.write(buffer, 0, receivePacket.getLength());
             }
 
             long endTime = System.currentTimeMillis();

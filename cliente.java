@@ -21,13 +21,13 @@ public class cliente{
         int packetSize = 500;
 
         // Testar TCP 
-        //testTCP(serverAddress, serverPort, filePath, packetSize);
+        testTCP(serverAddress, serverPort, filePath, packetSize);
 
         // Testar UDP sem garantia de entrega
         //testUDP(serverAddress, serverPortDatagram, filePath, packetSize, false);
 
         // Testar UDP com garantia de entrega
-        testUDP(serverAddress, serverPortDatagramRealiable, filePath, packetSize+8, true);
+        //testUDP(serverAddress, serverPortDatagramRealiable, filePath, packetSize+8, true);
     }
 
     private static void testTCP(String serverAddress, int serverPort, String filePath, int tamanhoPacote) {
@@ -113,7 +113,7 @@ public class cliente{
         // Ler o arquivo e enviar os pacotes
         while ((bytesRead = fileInputStream.read(buffer)) != -1) {
             // Enviar cada pacote com o tamanho especificado
-			DatagramPacket packet = new DatagramPacket(buffer, packetSize, serverAddress, serverPort);
+			DatagramPacket packet = new DatagramPacket(buffer, bytesRead, serverAddress, serverPort);
 			socket.send(packet);
 			
         }
@@ -142,23 +142,29 @@ public class cliente{
         RandomAccessFile file = new RandomAccessFile(filePath, "r");
         file.seek(0);
         // Criar um buffer para ler o arquivo
-        byte[] buffer = new byte[packetSize+8];  // colocar número de sequência no pacote com o +8
+        byte[] buffer = new byte[packetSize];  // colocar número de sequência no pacote com o +8
 
         int bytesRead;
         long verificationQword = 0;
-        long packetCount = file.length()/packetSize + (file.length()%packetSize/file.length()%packetSize);
-
+        long packetCount = file.length()/(packetSize-8);
+        if(packetCount%(packetSize-8) != 0)
+            packetCount++;
     
         
 
-        System.out.println(packetCount);
+        //System.out.println(packetCount);
         long startTime = System.currentTimeMillis();
         //socket.setSoTimeout(300);
         // Ler o arquivo e enviar os pacotes
         for (int i = 0 ; packetCount > i; i++){
-           
-            System.out.println(buffer.length);
-            bytesRead = file.read(buffer, 8, packetSize);
+                       
+            //System.out.println(buffer.length);
+            bytesRead = file.read(buffer, 8, packetSize-8);
+            
+            if(bytesRead < 0)
+                break;
+
+            //System.out.println(file.getFilePointer());
             //for(int k = 0; buffer.length > k; k++){
                 //System.out.println((char)buffer[k]);
             //}
@@ -168,7 +174,7 @@ public class cliente{
             fileShard.wrap(buffer, 0, 8);
             
             // Enviar cada pacote com o tamanho especificado
-			DatagramPacket packet = new DatagramPacket(buffer, packetSize+8, serverAddress, serverPort);
+			DatagramPacket packet = new DatagramPacket(buffer, bytesRead+8, serverAddress, serverPort);
 			socket.send(packet);
 
             socket.receive(packet);
@@ -186,11 +192,11 @@ public class cliente{
             
         }
 		
-
         byte[] deita = new byte[2];
-        deita[0] = 'c';
-        deita[1] = 'u';
+        deita[0] = 'E';
+        deita[1] = 'F';
         DatagramPacket packet = new DatagramPacket(deita, 2, serverAddress, serverPort);
+        packet.setLength(1);
 		socket.send(packet);
 
 

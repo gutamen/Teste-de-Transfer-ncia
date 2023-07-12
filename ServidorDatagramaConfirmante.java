@@ -13,6 +13,7 @@ public class ServidorDatagramaConfirmante {
     private static final int PACKET_SIZE = 500;
     private static final int SEQUENCE_NUMBER_SIZE = 8;
     private static final int CONFIRMATION_PORT = 34567;
+    static boolean first = true;
 
     public static void main(String[] args) {
         byte[] buffer = new byte[PACKET_SIZE+8];
@@ -23,18 +24,25 @@ public class ServidorDatagramaConfirmante {
             FileOutputStream fileOutputStream = new FileOutputStream("received_packets.txt");
             DatagramSocket serverSocket = new DatagramSocket(34567); 
 
-            long startTime = System.currentTimeMillis();
+            long startTime = 0;
 
             while (!stopFlag) {
                 DatagramPacket receivePacket = new DatagramPacket(buffer, 0,PACKET_SIZE+8);
                 serverSocket.receive(receivePacket);
+    
+                if(first){
+                    first = false;
+                    startTime = System.currentTimeMillis();
+                }
 
                 int packetLength = receivePacket.getLength();
                 if (packetLength <= 2) { 
                     stopFlag = true;
                     break;
                 }
-                fileOutputStream.write(receivePacket.getData(), 8, PACKET_SIZE);
+                
+                //System.out.println(receivePacket.getLength());
+                fileOutputStream.write(receivePacket.getData(), 8, receivePacket.getLength()-8);
                 long sequenceNumber = 0;
                 byte[] recieveBytes = receivePacket.getData();
                 sequenceNumber = ByteBuffer.wrap(recieveBytes).getLong(0);
