@@ -12,7 +12,7 @@ public class cliente{
         String serverAddress = "localhost";
         int serverPort = 12345;
         int serverPortDatagram = 23456;
-        int serverPortDatagramRealiable = 34567
+        int serverPortDatagramRealiable = 34567;
 
         // Definir o arquivo a ser transferido
         String filePath = "teste.txt";
@@ -24,10 +24,10 @@ public class cliente{
         //testTCP(serverAddress, serverPort, filePath, packetSize);
 
         // Testar UDP sem garantia de entrega
-        testUDP(serverAddress, serverPortDatagram, filePath, packetSize, false);
+        //testUDP(serverAddress, serverPortDatagram, filePath, packetSize, false);
 
         // Testar UDP com garantia de entrega
-        //testUDP(serverAddress, serverPortDatagramRealiable, filePath, packetSizes, true);
+        testUDP(serverAddress, serverPortDatagramRealiable, filePath, packetSize+8, true);
     }
 
     private static void testTCP(String serverAddress, int serverPort, String filePath, int tamanhoPacote) {
@@ -57,11 +57,12 @@ public class cliente{
             InetAddress serverInetAddress = InetAddress.getByName(serverAddress);
 
             // Enviar o arquivo
-            if(reliable)
+            if(!reliable){
                 sendFile(filePath, socket, serverInetAddress, serverPort, packetSize);
-            else
+            }
+            else{
                 sendFileReliable(filePath, socket, serverInetAddress, serverPort, packetSize);
-        
+            }
             // Fechar o socket
             socket.close();
 			
@@ -138,9 +139,8 @@ public class cliente{
 
     private static void sendFileReliable(String filePath, DatagramSocket socket, InetAddress serverAddress, int serverPort, int packetSize) throws IOException {
         // Abrir o arquivo
-        File file = new File(filePath);
-        FileInputStream fileInputStream = new FileInputStream(file);
-
+        RandomAccessFile file = new RandomAccessFile(filePath, "r");
+        file.seek(0);
         // Criar um buffer para ler o arquivo
         byte[] buffer = new byte[packetSize+8];  // colocar número de sequência no pacote com o +8
 
@@ -151,22 +151,31 @@ public class cliente{
     
         
 
-
+        System.out.println(packetCount);
         long startTime = System.currentTimeMillis();
-
+        //socket.setSoTimeout(300);
         // Ler o arquivo e enviar os pacotes
-        for (int i = 0 ; packetCount < i; i++){
+        for (int i = 0 ; packetCount > i; i++){
            
+            System.out.println(buffer.length);
+            bytesRead = file.read(buffer, 8, packetSize);
+            //for(int k = 0; buffer.length > k; k++){
+                //System.out.println((char)buffer[k]);
+            //}
 
-            bytesRead = fileInputStream.read(buffer); 
+            ByteBuffer fileShard = ByteBuffer.allocate(8);
+            fileShard.putLong(verificationQword);
+            fileShard.wrap(buffer, 0, 8);
             
             // Enviar cada pacote com o tamanho especificado
-			DatagramPacket packet = new DatagramPacket(buffer, packetSize, serverAddress, serverPort);
+			DatagramPacket packet = new DatagramPacket(buffer, packetSize+8, serverAddress, serverPort);
 			socket.send(packet);
-            socket.receive(packet);			
+
+            socket.receive(packet);
+
             byte[] verificator = packet.getData();
 
-            if (verificationQword == ByteBuffer.wrap(verificator).getLong()){
+            if (verificationQword+1 == ByteBuffer.wrap(verificator).getLong()){
                 verificationQword++;
             }
             else{
@@ -192,7 +201,7 @@ public class cliente{
         System.out.println("UDP Transfer Time: " + duration + " ms");
 
         // Fechar o arquivo
-        fileInputStream.close();
+        file.close();
     }
 }
 

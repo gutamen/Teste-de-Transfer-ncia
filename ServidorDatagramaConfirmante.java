@@ -7,24 +7,26 @@ import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.Box;
+
 public class ServidorDatagramaConfirmante {
     private static final int PACKET_SIZE = 500;
     private static final int SEQUENCE_NUMBER_SIZE = 8;
     private static final int CONFIRMATION_PORT = 34567;
 
     public static void main(String[] args) {
-        byte[] buffer = new byte[PACKET_SIZE];
+        byte[] buffer = new byte[PACKET_SIZE+8];
         boolean stopFlag = false;
         Set<Long> receivedSequences = new HashSet<>();
 
         try{ 
-            FileOutputStream fileOutputStream = new FileOutputStream("received_packets.txt", true);
+            FileOutputStream fileOutputStream = new FileOutputStream("received_packets.txt");
             DatagramSocket serverSocket = new DatagramSocket(34567); 
 
             long startTime = System.currentTimeMillis();
 
             while (!stopFlag) {
-                DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
+                DatagramPacket receivePacket = new DatagramPacket(buffer, 0,PACKET_SIZE+8);
                 serverSocket.receive(receivePacket);
 
                 int packetLength = receivePacket.getLength();
@@ -32,20 +34,35 @@ public class ServidorDatagramaConfirmante {
                     stopFlag = true;
                     break;
                 }
+                fileOutputStream.write(receivePacket.getData(), 8, PACKET_SIZE);
+                long sequenceNumber = 0;
+                byte[] recieveBytes = receivePacket.getData();
+                sequenceNumber = ByteBuffer.wrap(recieveBytes).getLong(0);
 
-                long sequenceNumber = extractSequenceNumber(buffer, packetLength);
-                byte[] confirmationData = ByteBuffer.allocate(8).putLong(sequenceNumber).array();
+                sequenceNumber++;
+                byte[] responseBytes;
+                
+                ByteBuffer responseTranslate = ByteBuffer.allocate(8);
+                responseTranslate.putLong(sequenceNumber);
+                
+                responseBytes = responseTranslate.array();
+
+                DatagramPacket responsePacket = new DatagramPacket(responseBytes, 0, responseBytes.length, receivePacket.getAddress(), CONFIRMATION_PORT);
+
+                serverSocket.send(receivePacket);
+                /*byte[] confirmationData = ByteBuffer.allocate(8).putLong(sequenceNumber).array();
                 sendConfirmation(confirmationData, receivePacket.getAddress(), CONFIRMATION_PORT);
 
                 if (!receivedSequences.contains(sequenceNumber)) {
                     fileOutputStream.write(buffer, SEQUENCE_NUMBER_SIZE, packetLength - SEQUENCE_NUMBER_SIZE);
                     receivedSequences.add(sequenceNumber);
-                }
+                }*/
             }
 
             long endTime = System.currentTimeMillis();
             long duration = endTime - startTime;
             System.out.println("Elapsed Time: " + duration + " ms");
+            fileOutputStream.close();
 
         } catch (IOException e) {
             e.printStackTrace();
