@@ -21,10 +21,10 @@ public class cliente{
         int packetSize = 500;
 
         // Testar TCP 
-        testTCP(serverAddress, serverPort, filePath, packetSize);
+        //testTCP(serverAddress, serverPort, filePath, packetSize);
 
         // Testar UDP sem garantia de entrega
-        //testUDP(serverAddress, serverPortDatagram, filePath, packetSize, false);
+        testUDP(serverAddress, serverPortDatagram, filePath, packetSize, false);
 
         // Testar UDP com garantia de entrega
         //testUDP(serverAddress, serverPortDatagramRealiable, filePath, packetSize+8, true);
