@@ -85,7 +85,7 @@ public class cliente{
         // Ler o arquivo e enviar os pacotes
         while ((bytesRead = fileInputStream.read(buffer)) != -1) {
             // Enviar cada pacote com o tamanho especificado
-            outputStream.write(buffer, 0, tamanhoPacote); 
+            outputStream.write(buffer, 0, bytesRead); 
         }
 
         long endTime = System.currentTimeMillis();
