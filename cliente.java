@@ -3,7 +3,7 @@ import java.net.*;
 import java.util.concurrent.*;
 import java.nio.ByteBuffer;
 
-
+// rm received_dubious_packets.txt & java ServidorDatagrama & rm received_packets.txt & java ServidorDatagramaConfirmante & java ControlServer
 public class cliente{
     private static final int BUFFER_SIZE = 1024;
 
@@ -21,13 +21,13 @@ public class cliente{
         int packetSize = 500;
 
         // Testar TCP 
-        //testTCP(serverAddress, serverPort, filePath, packetSize);
+        testTCP(serverAddress, serverPort, filePath, packetSize);
 
         // Testar UDP sem garantia de entrega
         testUDP(serverAddress, serverPortDatagram, filePath, packetSize, false);
 
         // Testar UDP com garantia de entrega
-        //testUDP(serverAddress, serverPortDatagramRealiable, filePath, packetSize+8, true);
+        testUDP(serverAddress, serverPortDatagramRealiable, filePath, packetSize+8, true);
     }
 
     private static void testTCP(String serverAddress, int serverPort, String filePath, int tamanhoPacote) {
@@ -78,13 +78,14 @@ public class cliente{
 		
         // Criar um buffer para ler o arquivo
         byte[] buffer = new byte[tamanhoPacote];
-
+        int packetCount = 0;
         int bytesRead;
         long startTime = System.currentTimeMillis();
 
         // Ler o arquivo e enviar os pacotes
         while ((bytesRead = fileInputStream.read(buffer)) != -1) {
             // Enviar cada pacote com o tamanho especificado
+            packetCount++;
             outputStream.write(buffer, 0, bytesRead); 
         }
 
@@ -92,7 +93,9 @@ public class cliente{
 
         // Calcular e exibir o tempo de transferência
         long duration = endTime - startTime;
-        System.out.println("TCP Transfer Time: " + duration + " ms");
+        System.out.println("Tempo de TransferÊncia TCP: " + duration + " ms");
+        System.out.println("Total de Pacotes enviados: " + packetCount);
+        System.out.println();
 
         // Fechar o arquivo
         fileInputStream.close();
@@ -114,16 +117,24 @@ public class cliente{
         while ((bytesRead = fileInputStream.read(buffer)) != -1) {
             // Enviar cada pacote com o tamanho especificado
 			DatagramPacket packet = new DatagramPacket(buffer, bytesRead, serverAddress, serverPort);
-            System.out.println(packet.getLength());
+            //System.out.println(packet.getLength());
             packetCount++;
 			socket.send(packet);
+            
+            try{
+                TimeUnit.NANOSECONDS.sleep(5);
+            }
+            catch(Exception e){
+
+            }
 			
         }
 		
-        System.out.println(packetCount);
+        //System.out.println(packetCount);
+        
         byte[] deita = new byte[2];
-        deita[0] = 'c';
-        deita[1] = 'u';
+        deita[0] = 'O';
+        deita[1] = 'F';
         DatagramPacket packet = new DatagramPacket(deita, 2, serverAddress, serverPort);
 		socket.send(packet);
 
@@ -132,7 +143,9 @@ public class cliente{
 
         // Calcular e exibir o tempo de transferência
         long duration = endTime - startTime;
-        System.out.println("UDP Transfer Time: " + duration + " ms");
+        System.out.println("Tempo de Transferêmcia UDP não Confiável :" + duration + " ms");
+        System.out.println("Total de pacotes enviados : " + packetCount);
+        System.out.println();
 
         // Fechar o arquivo
         fileInputStream.close();
@@ -152,7 +165,7 @@ public class cliente{
         if(packetCount%(packetSize-8) != 0)
             packetCount++;
     
-        
+        int realPacketCount = 0; 
 
         //System.out.println(packetCount);
         long startTime = System.currentTimeMillis();
@@ -165,7 +178,7 @@ public class cliente{
             
             if(bytesRead < 0)
                 break;
-
+            realPacketCount++;
             //System.out.println(file.getFilePointer());
             //for(int k = 0; buffer.length > k; k++){
                 //System.out.println((char)buffer[k]);
@@ -195,7 +208,7 @@ public class cliente{
         }
 		
         byte[] deita = new byte[2];
-        deita[0] = 'E';
+        deita[0] = 'O';
         deita[1] = 'F';
         DatagramPacket packet = new DatagramPacket(deita, 2, serverAddress, serverPort);
         packet.setLength(1);
@@ -206,8 +219,9 @@ public class cliente{
 
         // Calcular e exibir o tempo de transferência
         long duration = endTime - startTime;
-        System.out.println("UDP Transfer Time: " + duration + " ms");
-
+        System.out.println("Tempo de Transferência UDP Confiável: " + duration + " ms");
+        System.out.println("Total de Pacotes Enviados:" + realPacketCount);
+        System.out.println();
         // Fechar o arquivo
         file.close();
     }

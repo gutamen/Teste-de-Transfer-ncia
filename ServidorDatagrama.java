@@ -11,9 +11,10 @@ public class ServidorDatagrama {
         byte[] buffer = new byte[packetSize];
         boolean stopFlag = false;
 
-        try (FileOutputStream fileOutputStream = new FileOutputStream("received_dubious_packets.txt");
-             DatagramSocket serverSocket = new DatagramSocket(23456)) {
-
+        try{ 
+            FileOutputStream fileOutputStream = new FileOutputStream("received_dubious_packets.txt");
+            DatagramSocket serverSocket = new DatagramSocket(23456);
+            serverSocket.setSoTimeout(10000); 
             long startTime = 0;
 
             while (!stopFlag) {
@@ -25,7 +26,8 @@ public class ServidorDatagrama {
                     startTime = System.currentTimeMillis();
                 }
 
-                System.out.println(++packetCount);
+                //System.out.println(++packetCount);
+                packetCount++;
 
                 int packetLength = receivePacket.getLength();
                 if (packetLength <= 2) {
@@ -38,10 +40,14 @@ public class ServidorDatagrama {
 
             long endTime = System.currentTimeMillis();
             long duration = endTime - startTime;
-            System.out.println("Elapsed Time: " + duration + " ms");
+            System.out.println("Tempo de chegada: " + duration + " ms");
+            System.out.println("Total de pacote recebidos = " + packetCount);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } 
+        catch (IOException e) {
+            System.out.println("Erro: Tempo Limite de Espera Excedido >= 10 Segundos");
+            if(!first)
+                System.out.println("Pacote de Finalização não recebido");
         }
     }
 }
