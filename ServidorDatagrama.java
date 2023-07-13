@@ -5,7 +5,7 @@ import java.net.DatagramSocket;
 
 public class ServidorDatagrama {
     static boolean first = true;
-
+    static int packetCount = 0; 
     public static void main(String[] args) {
         int packetSize = 500;
         byte[] buffer = new byte[packetSize];
@@ -14,7 +14,7 @@ public class ServidorDatagrama {
         try (FileOutputStream fileOutputStream = new FileOutputStream("received_dubious_packets.txt");
              DatagramSocket serverSocket = new DatagramSocket(23456)) {
 
-            long startTime = System.currentTimeMillis();
+            long startTime = 0;
 
             while (!stopFlag) {
                 DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
@@ -24,6 +24,8 @@ public class ServidorDatagrama {
                     first = false;
                     startTime = System.currentTimeMillis();
                 }
+
+                System.out.println(++packetCount);
 
                 int packetLength = receivePacket.getLength();
                 if (packetLength <= 2) {

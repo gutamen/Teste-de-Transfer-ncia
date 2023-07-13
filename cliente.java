@@ -109,16 +109,18 @@ public class cliente{
 
         int bytesRead;
         long startTime = System.currentTimeMillis();
-
+        int packetCount = 0;
         // Ler o arquivo e enviar os pacotes
         while ((bytesRead = fileInputStream.read(buffer)) != -1) {
             // Enviar cada pacote com o tamanho especificado
 			DatagramPacket packet = new DatagramPacket(buffer, bytesRead, serverAddress, serverPort);
+            System.out.println(packet.getLength());
+            packetCount++;
 			socket.send(packet);
 			
         }
 		
-
+        System.out.println(packetCount);
         byte[] deita = new byte[2];
         deita[0] = 'c';
         deita[1] = 'u';
