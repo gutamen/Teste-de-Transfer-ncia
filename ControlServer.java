@@ -6,6 +6,13 @@ public class ControlServer {
     public static String recive = "received_file.txt";
     public static void main(String[] args) {
         int porta = 0;
+        
+        File file = new File(recive);    
+
+        if(file.exists())
+            file.delete();
+    
+
         if(args.length > 0){
             porta = Integer.parseInt(args[0]);
         }
@@ -15,6 +22,8 @@ public class ControlServer {
         iniciaServidor(porta);
     }
 	
+
+
 	static int packetSize = 500;
 
     private static void iniciaServidor(int porta) {
@@ -48,7 +57,7 @@ public class ControlServer {
         byte[] buffer = new byte[packetSize];
 
         // Cria o arquivo de saída
-        FileOutputStream fileOutputStream = new FileOutputStream("received_file.txt");
+        FileOutputStream fileOutputStream = new FileOutputStream(recive);
 
         // Obtém o fluxo de entrada do cliente
         InputStream inputStream = clientSocket.getInputStream();
