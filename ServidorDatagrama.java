@@ -1,15 +1,22 @@
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.File;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
 public class ServidorDatagrama {
     static boolean first = true;
     static int packetCount = 0; 
+    
     public static void main(String[] args) {
         int packetSize = 500;
         byte[] buffer = new byte[packetSize];
         boolean stopFlag = false;
+        
+        File file = new File("./received_dubious_packets.txt");
+
+        if(file.exists())
+            file.delete();
 
         try{ 
             FileOutputStream fileOutputStream = new FileOutputStream("received_dubious_packets.txt");

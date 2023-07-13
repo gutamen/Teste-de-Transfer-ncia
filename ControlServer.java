@@ -2,9 +2,8 @@ import java.io.*;
 import java.net.*;
 
 public class ControlServer {
-    private static final int BUFFER_SIZE = 1024;
     private static final int DEFAULT_PORT = 12345;
-
+    public static String recive = "received_file.txt";
     public static void main(String[] args) {
         int porta = 0;
         if(args.length > 0){

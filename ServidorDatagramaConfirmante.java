@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -6,6 +7,7 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.Box;
 
@@ -14,24 +16,40 @@ public class ServidorDatagramaConfirmante {
     private static final int SEQUENCE_NUMBER_SIZE = 8;
     private static final int CONFIRMATION_PORT = 34567;
     static boolean first = true;
+    static boolean stopFlag = false;
 
     public static void main(String[] args) {
+        while(!stopFlag)
+            execute();
+    }
+
+    public static void execute(){
         byte[] buffer = new byte[PACKET_SIZE+8];
-        boolean stopFlag = false;
-        Set<Long> receivedSequences = new HashSet<>();
+        FileOutputStream fileOutputStream;
+    
+        File file = new File("./received_packets.txt");
+
+        if(file.exists())
+            file.delete();
+
+        
 
         try{ 
-            FileOutputStream fileOutputStream = new FileOutputStream("received_packets.txt");
-            DatagramSocket serverSocket = new DatagramSocket(34567); 
+            fileOutputStream = new FileOutputStream("received_packets.txt");
+            DatagramSocket serverSocket = new DatagramSocket(CONFIRMATION_PORT); 
+                
+            System.out.println("Servidor inicializado na Porta: " + CONFIRMATION_PORT);
+            System.out.println();
 
             long startTime = 0;
 
             while (!stopFlag) {
-                DatagramPacket receivePacket = new DatagramPacket(buffer, 0,PACKET_SIZE+8);
+                DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                 serverSocket.receive(receivePacket);
     
                 if(first){
                     first = false;
+                    serverSocket.setSoTimeout(1000);     
                     startTime = System.currentTimeMillis();
                 }
 
@@ -48,6 +66,8 @@ public class ServidorDatagramaConfirmante {
                 sequenceNumber = ByteBuffer.wrap(recieveBytes).getLong(0);
 
                 sequenceNumber++;
+                if(sequenceNumber == 20000)
+                    sequenceNumber++;           // Teste de integridade comprometido
                 byte[] responseBytes;
                 
                 ByteBuffer responseTranslate = ByteBuffer.allocate(8);
@@ -55,16 +75,9 @@ public class ServidorDatagramaConfirmante {
                 
                 responseBytes = responseTranslate.array();
 
-                DatagramPacket responsePacket = new DatagramPacket(responseBytes, 0, responseBytes.length, receivePacket.getAddress(), CONFIRMATION_PORT);
+                DatagramPacket responsePacket = new DatagramPacket(responseBytes, 0, responseBytes.length, receivePacket.getAddress(), receivePacket.getPort());
 
-                serverSocket.send(receivePacket);
-                /*byte[] confirmationData = ByteBuffer.allocate(8).putLong(sequenceNumber).array();
-                sendConfirmation(confirmationData, receivePacket.getAddress(), CONFIRMATION_PORT);
-
-                if (!receivedSequences.contains(sequenceNumber)) {
-                    fileOutputStream.write(buffer, SEQUENCE_NUMBER_SIZE, packetLength - SEQUENCE_NUMBER_SIZE);
-                    receivedSequences.add(sequenceNumber);
-                }*/
+                serverSocket.send(responsePacket);
             }
 
             long endTime = System.currentTimeMillis();
@@ -73,21 +86,16 @@ public class ServidorDatagramaConfirmante {
             fileOutputStream.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            
+            if(!first){
+                first = true;
+                System.out.println("Arquivo não recebido por completo, tentando novamente");
+                return;
+                
+            }
+
         }
     }
 
-    private static long extractSequenceNumber(byte[] buffer, int packetLength) {
-        byte[] sequenceNumberBytes = new byte[SEQUENCE_NUMBER_SIZE];
-        System.arraycopy(buffer, packetLength - SEQUENCE_NUMBER_SIZE, sequenceNumberBytes, 0, SEQUENCE_NUMBER_SIZE);
-        return ByteBuffer.wrap(sequenceNumberBytes).getLong();
-    }
-
-    private static void sendConfirmation(byte[] data, InetAddress address, int port) throws IOException {
-        try (DatagramSocket socket = new DatagramSocket()) {
-            DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
-            socket.send(packet);
-        }
-    }
 }
 

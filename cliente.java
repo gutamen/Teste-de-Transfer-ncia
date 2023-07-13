@@ -5,11 +5,10 @@ import java.nio.ByteBuffer;
 
 // rm received_dubious_packets.txt & java ServidorDatagrama & rm received_packets.txt & java ServidorDatagramaConfirmante & java ControlServer
 public class cliente{
-    private static final int BUFFER_SIZE = 1024;
 
     public static void main(String[] args) {
         // Definir as informações do servidor e porta
-        String serverAddress = "localhost";
+        String serverAddress = "127.0.0.1";
         int serverPort = 12345;
         int serverPortDatagram = 23456;
         int serverPortDatagramRealiable = 34567;
@@ -21,13 +20,13 @@ public class cliente{
         int packetSize = 500;
 
         // Testar TCP 
-        testTCP(serverAddress, serverPort, filePath, packetSize);
+        //testTCP(serverAddress, serverPort, filePath, packetSize);
 
         // Testar UDP sem garantia de entrega
-        testUDP(serverAddress, serverPortDatagram, filePath, packetSize, false);
+        //testUDP(serverAddress, serverPortDatagram, filePath, packetSize, false);
 
         // Testar UDP com garantia de entrega
-        testUDP(serverAddress, serverPortDatagramRealiable, filePath, packetSize+8, true);
+        //testUDP(serverAddress, serverPortDatagramRealiable, filePath, packetSize+8, true);
     }
 
     private static void testTCP(String serverAddress, int serverPort, String filePath, int tamanhoPacote) {
@@ -44,7 +43,9 @@ public class cliente{
             // Fechar o socket
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+    
+            System.out.println("Erro ao conectar-se com o Servidor TCP");        
+            System.out.println();        
         }
     }
 
@@ -61,13 +62,20 @@ public class cliente{
                 sendFile(filePath, socket, serverInetAddress, serverPort, packetSize);
             }
             else{
+                socket.setSoTimeout(2000);
                 sendFileReliable(filePath, socket, serverInetAddress, serverPort, packetSize);
             }
             // Fechar o socket
             socket.close();
 			
         } catch (IOException e) {
-            e.printStackTrace();
+
+            if(reliable){
+                System.out.println("Sem resposta de Recebimento");
+                System.out.println();
+                testUDP(serverAddress, serverPort, filePath, packetSize, reliable);
+            }
+            //e.printStackTrace();
         }
     }
 
@@ -132,10 +140,10 @@ public class cliente{
 		
         //System.out.println(packetCount);
         
-        byte[] deita = new byte[2];
-        deita[0] = 'O';
-        deita[1] = 'F';
-        DatagramPacket packet = new DatagramPacket(deita, 2, serverAddress, serverPort);
+        byte[] last = new byte[2];
+        last[0] = 'O';
+        last[1] = 'F';
+        DatagramPacket packet = new DatagramPacket(last, 2, serverAddress, serverPort);
 		socket.send(packet);
 
 
@@ -192,26 +200,35 @@ public class cliente{
 			DatagramPacket packet = new DatagramPacket(buffer, bytesRead+8, serverAddress, serverPort);
 			socket.send(packet);
 
+            //System.out.println("aqui");
+
             socket.receive(packet);
 
             byte[] verificator = packet.getData();
 
             if (verificationQword+1 == ByteBuffer.wrap(verificator).getLong()){
                 verificationQword++;
+                System.out.println(ByteBuffer.wrap(verificator).getLong());
             }
             else{
+                try{
+                    System.out.println("Erro na Verificação de arquivo" + (char)10 + "Enviando arquivo novamente" + (char)10);
+                    TimeUnit.MILLISECONDS.sleep(3500);
+                }
+                catch(Exception e){
 
+                }
+                throw new IOException("Erro na Verificação de arquivo");
             }
 
             
             
         }
 		
-        byte[] deita = new byte[2];
-        deita[0] = 'O';
-        deita[1] = 'F';
-        DatagramPacket packet = new DatagramPacket(deita, 2, serverAddress, serverPort);
-        packet.setLength(1);
+        byte[] last = new byte[2];
+        last[0] = 'O';
+        last[1] = 'F';
+        DatagramPacket packet = new DatagramPacket(last, 2, serverAddress, serverPort);
 		socket.send(packet);
 
 
