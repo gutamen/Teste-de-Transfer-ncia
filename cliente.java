@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 
 // rm received_dubious_packets.txt & java ServidorDatagrama & rm received_packets.txt & java ServidorDatagramaConfirmante & java ControlServer
 public class cliente{
-
+	public static long moreTimeDelay = 0;
     public static void main(String[] args) {
         // Definir as informações do servidor e porta
         String serverAddress = "127.0.0.1";
@@ -214,6 +214,7 @@ public class cliente{
                 try{
                     System.out.println("Erro na Verificação de arquivo" + (char)10 + "Enviando arquivo novamente" + (char)10);
                     TimeUnit.MILLISECONDS.sleep(3500);
+					moreTimeDelay += System.currentTimeMillis() - startTime;
                 }
                 catch(Exception e){
 
@@ -235,7 +236,7 @@ public class cliente{
         long endTime = System.currentTimeMillis();
 
         // Calcular e exibir o tempo de transferência
-        long duration = endTime - startTime;
+        long duration = endTime - startTime + moreTimeDelay;
         System.out.println("Tempo de Transferência UDP Confiável: " + duration + " ms");
         System.out.println("Total de Pacotes Enviados:" + realPacketCount);
         System.out.println();
