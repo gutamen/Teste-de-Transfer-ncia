@@ -9,7 +9,12 @@ public class ServidorDatagrama {
     static int packetCount = 0; 
     
     public static void main(String[] args) {
+
         int packetSize = 500;
+        if (args.length == 1){
+            packetSize = Integer.parseInt(args[0]);
+        }
+
         byte[] buffer = new byte[packetSize];
         boolean stopFlag = false;
         

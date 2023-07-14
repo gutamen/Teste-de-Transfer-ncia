@@ -12,13 +12,18 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.Box;
 
 public class ServidorDatagramaConfirmante {
-    private static final int PACKET_SIZE = 500;
+    public static int PACKET_SIZE = 500;
     private static final int SEQUENCE_NUMBER_SIZE = 8;
     private static final int CONFIRMATION_PORT = 34567;
     static boolean first = true;
     static boolean stopFlag = false;
 
     public static void main(String[] args) {
+        
+        if(args.length == 1){
+            PACKET_SIZE = Integer.parseInt(args[0]);
+        }
+
         while(!stopFlag)
             execute();
     }
@@ -66,8 +71,8 @@ public class ServidorDatagramaConfirmante {
                 sequenceNumber = ByteBuffer.wrap(recieveBytes).getLong(0);
 
                 sequenceNumber++;
-                if(sequenceNumber == 20000)
-                    sequenceNumber++;           // Teste de integridade comprometido
+                //if(sequenceNumber == 20000)
+                    //sequenceNumber++;           // Teste de integridade comprometido
                 byte[] responseBytes;
                 
                 ByteBuffer responseTranslate = ByteBuffer.allocate(8);

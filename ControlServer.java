@@ -13,7 +13,7 @@ public class ControlServer {
             file.delete();
     
 
-        if(args.length > 0){
+        if(args.length == 1){
             porta = Integer.parseInt(args[0]);
         }
         else{
@@ -79,7 +79,7 @@ public class ControlServer {
 
         // Calcula e exibe o tempo de transferência
         long duration = endTime - startTime;
-        System.out.println("TCP Transfer Time: " + duration + " ms");
+        System.out.println("Tempo de Transferência TCP: " + duration + " ms");
     }
 }
 

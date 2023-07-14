@@ -6,6 +6,8 @@ import java.nio.ByteBuffer;
 // rm received_dubious_packets.txt & java ServidorDatagrama & rm received_packets.txt & java ServidorDatagramaConfirmante & java ControlServer
 public class cliente{
 	public static long moreTimeDelay = 0;
+    public static long packetCountReliable = 0;
+
     public static void main(String[] args) {
         // Definir as informações do servidor e porta
         String serverAddress = "127.0.0.1";
@@ -18,7 +20,30 @@ public class cliente{
 
         // Definir tamanho do pacote
         int packetSize = 500;
+        if(args.length == 4){
+            if(args[0].equalsIgnoreCase("udp")){
+                if(args[1].equalsIgnoreCase("true")){
+                    filePath = args[2];
+                    packetSize = Integer.parseInt(args[3]);
+                    testUDP(serverAddress, serverPortDatagramRealiable, filePath, packetSize, true);
+                }
+                if(args[1].equalsIgnoreCase("false")){
+                    filePath = args[2];
+                    packetSize = Integer.parseInt(args[3]);
+                    testUDP(serverAddress, serverPortDatagram, filePath, packetSize, false);
+                }
 
+
+            }
+
+            if(args[0].equalsIgnoreCase("tcp")){
+                filePath = args[2];
+                packetSize = Integer.parseInt(args[3]);
+                testTCP(serverAddress, serverPort, filePath, packetSize);
+            }
+            
+
+        }
         // Testar TCP 
         //testTCP(serverAddress, serverPort, filePath, packetSize);
 
@@ -173,7 +198,7 @@ public class cliente{
         if(packetCount%(packetSize-8) != 0)
             packetCount++;
     
-        int realPacketCount = 0; 
+        //int realPacketCount = 0; 
 
         //System.out.println(packetCount);
         long startTime = System.currentTimeMillis();
@@ -186,7 +211,7 @@ public class cliente{
             
             if(bytesRead < 0)
                 break;
-            realPacketCount++;
+            packetCountReliable++;
             //System.out.println(file.getFilePointer());
             //for(int k = 0; buffer.length > k; k++){
                 //System.out.println((char)buffer[k]);
@@ -208,7 +233,7 @@ public class cliente{
 
             if (verificationQword+1 == ByteBuffer.wrap(verificator).getLong()){
                 verificationQword++;
-                System.out.println(ByteBuffer.wrap(verificator).getLong());
+                //System.out.println(ByteBuffer.wrap(verificator).getLong());
             }
             else{
                 try{
@@ -238,8 +263,7 @@ public class cliente{
         // Calcular e exibir o tempo de transferência
         long duration = endTime - startTime + moreTimeDelay;
         System.out.println("Tempo de Transferência UDP Confiável: " + duration + " ms");
-        System.out.println("Total de Pacotes Enviados:" + realPacketCount);
-        System.out.println();
+        System.out.println("Total de Pacotes Enviados:" + packetCountReliable + 10);
         // Fechar o arquivo
         file.close();
     }
