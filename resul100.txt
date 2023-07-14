@@ -1,0 +1,90 @@
+Tempo de Transferêmcia UDP não Confiável :13767 ms
+Total de pacotes enviados : 1024000
+
+Tempo de TransferÊncia TCP: 8667 ms
+Total de Pacotes enviados: 1024000
+
+Tempo de Transferência UDP Confiável: 118064 ms
+Total de Pacotes Enviados:1024000
+
+Tempo de Transferêmcia UDP não Confiável :13769 ms
+Total de pacotes enviados : 1024000
+
+Tempo de TransferÊncia TCP: 8602 ms
+Total de Pacotes enviados: 1024000
+
+Tempo de Transferência UDP Confiável: 119403 ms
+Total de Pacotes Enviados:1024000
+
+Tempo de Transferêmcia UDP não Confiável :13770 ms
+Total de pacotes enviados : 1024000
+
+Tempo de TransferÊncia TCP: 8653 ms
+Total de Pacotes enviados: 1024000
+
+Tempo de Transferência UDP Confiável: 120033 ms
+Total de Pacotes Enviados:1024000
+
+Tempo de Transferêmcia UDP não Confiável :13776 ms
+Total de pacotes enviados : 1024000
+
+Tempo de TransferÊncia TCP: 8669 ms
+Total de Pacotes enviados: 1024000
+
+Tempo de Transferência UDP Confiável: 119546 ms
+Total de Pacotes Enviados:1024000
+
+Tempo de Transferêmcia UDP não Confiável :13763 ms 
+Total de pacotes enviados : 1024000 perdeu -954 
+
+Tempo de TransferÊncia TCP: 8671 ms
+Total de Pacotes enviados: 1024000
+
+Tempo de Transferência UDP Confiável: 120586 ms
+Total de Pacotes Enviados:1024000
+
+Tempo de Transferêmcia UDP não Confiável :13739 ms
+Total de pacotes enviados : 1024000
+
+Tempo de TransferÊncia TCP: 8674 ms
+Total de Pacotes enviados: 1024000
+
+Tempo de Transferência UDP Confiável: 120424 ms
+Total de Pacotes Enviados:1024000
+
+Tempo de Transferêmcia UDP não Confiável :13750 ms
+Total de pacotes enviados : 1024000
+
+Tempo de TransferÊncia TCP: 8665 ms
+Total de Pacotes enviados: 1024000
+
+Tempo de Transferência UDP Confiável: 119183 ms
+Total de Pacotes Enviados:1024000
+
+Tempo de Transferêmcia UDP não Confiável :13748 ms
+Total de pacotes enviados : 1024000 perdeu -7041
+
+Tempo de TransferÊncia TCP: 8655 ms
+Total de Pacotes enviados: 1024000
+
+Tempo de Transferência UDP Confiável: 121163 ms
+Total de Pacotes Enviados:1024000
+
+Tempo de Transferêmcia UDP não Confiável :13762 ms
+Total de pacotes enviados : 1024000
+
+Tempo de TransferÊncia TCP: 8673 ms
+Total de Pacotes enviados: 1024000
+
+Tempo de Transferência UDP Confiável: 122446 ms
+Total de Pacotes Enviados:1024000
+
+Tempo de Transferêmcia UDP não Confiável :13746 ms
+Total de pacotes enviados : 1024000
+
+Tempo de TransferÊncia TCP: 8656 ms
+Total de Pacotes enviados: 1024000
+
+Tempo de Transferência UDP Confiável: 121790 ms
+Total de Pacotes Enviados:1024000
+
