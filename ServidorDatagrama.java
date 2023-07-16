@@ -26,7 +26,6 @@ public class ServidorDatagrama {
         try{ 
             FileOutputStream fileOutputStream = new FileOutputStream("received_dubious_packets.txt");
             DatagramSocket serverSocket = new DatagramSocket(23456);
-            serverSocket.setSoTimeout(10000); 
             long startTime = 0;
 
             while (!stopFlag) {
@@ -35,6 +34,7 @@ public class ServidorDatagrama {
 
                 if(first){
                     first = false;
+					serverSocket.setSoTimeout(10000); 
                     startTime = System.currentTimeMillis();
                 }
 
